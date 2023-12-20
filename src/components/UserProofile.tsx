@@ -3,7 +3,7 @@
 interface IUserProfileProps {
   email: string;
   username: string;
-  handleLogout: () => never;
+  handleLogout: () => void;
 }
 
 function UserProfile(props: IUserProfileProps) {
