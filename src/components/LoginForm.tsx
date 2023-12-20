@@ -6,6 +6,8 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Cookies from 'universal-cookie';
+import { ILoginData } from '../interfaces/auth.inteface';
+import { loginUser } from '../services/auth.service';
 
 function LoginForm() {
   const { push } = useRouter();
@@ -15,25 +17,23 @@ function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<ILoginData>();
 
+  // for api errors
   const [apiErrors, setApiErrors] = useState<string | null>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ILoginData) => {
     setApiErrors(null);
     setIsLoading(true);
     try {
-      // Send login data to the API endpoint
-      const response = await axios.post('http://localhost:3002/v1/auth', data);
-      if (response.data?.status === true && response.data?.node) {
-        const { accessToken, refreshToken } = response.data.node;
+      const response = await loginUser(data);
+      if (response?.status === true && response?.node) {
+        const { accessToken, refreshToken } = response.node;
 
         // Set tokens as HTTP-only cookies
         cookies.set('accessToken', accessToken, { path: '/' });
-        cookies.set('refreshToken', refreshToken, {
-          path: '/',
-        });
+        cookies.set('refreshToken', refreshToken, { path: '/' });
 
         alert('Login successful!');
         push('/profile');
