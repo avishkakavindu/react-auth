@@ -1,40 +1,30 @@
 'use client';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
-import { redirect } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Cookies from 'universal-cookie';
 
+import { getUserData } from '@/src/services/user.service';
 import auth from '@/src/components/Auth';
-import UserProfile from '@/src/components/UserProofile';
+import UserProfile from '@/src/components/UserProfile';
 
 interface IUserData {
   username: string;
   email: string;
 }
+
 function Profile() {
   const [userData, setUserData] = useState<IUserData>();
   const cookies = new Cookies();
   const { push } = useRouter();
 
+  // fetch authenticated user data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const accessToken = cookies.get('accessToken');
-        const config = {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        };
-
-        const response = await axios.get(
-          'http://localhost:3002/v1/users',
-          config
-        );
-        if (response?.data?.node) {
-          setUserData(response.data.node);
-        }
+        const userNode = await getUserData(accessToken);
+        setUserData(userNode);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -43,6 +33,9 @@ function Profile() {
     fetchData();
   }, []);
 
+  /**
+   * Handle login out  user
+   */
   const handleLogout = () => {
     // remove authentication tokens from cookies
     cookies.remove('accessToken');

@@ -31,7 +31,8 @@ function LoginForm() {
       if (response?.status === true && response?.node) {
         const { accessToken, refreshToken } = response.node;
 
-        // Set tokens as HTTP-only cookies
+        // Set tokens as cookies
+        // TODO use more convenient way
         cookies.set('accessToken', accessToken, { path: '/' });
         cookies.set('refreshToken', refreshToken, { path: '/' });
 
@@ -41,7 +42,6 @@ function LoginForm() {
         setApiErrors('Login failed');
       }
     } catch (error: any) {
-      debugger;
       const errMsg = error.response?.data || 'Something went wrong';
       setApiErrors(errMsg);
     } finally {

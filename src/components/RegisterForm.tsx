@@ -1,9 +1,12 @@
 'use client';
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+import { IRegisterUserData } from '../interfaces/user.interface';
+import { registerUser } from '../services/user.service';
 
 function RegisterForm() {
   const { push } = useRouter();
@@ -13,31 +16,36 @@ function RegisterForm() {
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm();
+  } = useForm<IRegisterUserData>();
 
+  // keeps api errors
   const [apiErrors, setApiErrors] = useState<string | null>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data: any) => {
+  /**
+   * Register user
+   * @param {IRegisterUserData} data - Register form data
+   */
+  const onSubmit = async (data: IRegisterUserData) => {
     setApiErrors(null);
     setIsLoading(true);
     try {
-      // Send registration data to the API endpoint
-      const response = await axios.post('http://localhost:3002/v1/users', data);
-      if (response.data.status === true) {
+      const response = await registerUser(data);
+
+      if (response.status === true) {
         alert('Registered successfully!');
         push('/');
       } else {
         setApiErrors('Registration Failed');
       }
     } catch (error: any) {
-      const errMsg = error.response?.data || 'Something went wrong';
-      setApiErrors(errMsg);
+      setApiErrors(error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  //  watching the input field named 'password' and retrieving its current value
   const password = watch('password', '');
 
   return (
