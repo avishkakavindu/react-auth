@@ -5,7 +5,12 @@
 .login input {
   @apply border-gray-200;
 
-  width: 400px;
+  max-width: 300px;
   padding: 8px 24px 8px 24px;
   border-radius: 6px;
+}
+
+.login p {
+  max-width: 300px;
+  word-wrap: break-word;
 }

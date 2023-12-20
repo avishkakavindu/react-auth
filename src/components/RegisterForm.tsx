@@ -48,8 +48,10 @@ function RegisterForm() {
   //  watching the input field named 'password' and retrieving its current value
   const password = watch('password', '');
 
+  console.log(errors);
+
   return (
-    <div className='grid place-items-center h-screen'>
+    <div className='grid place-items-center h-screen register '>
       <div className='shadow-lg rounded-lg border-t-4 border border-blue-500 p-4'>
         <h3 className='text-xl font-bold my-4'>SignUp</h3>
 
@@ -64,10 +66,10 @@ function RegisterForm() {
             type='text'
             id='email'
             placeholder='Email'
-            className='border p-2'
+            className={`border p-2 ${errors?.email ? 'border-red-400' : ''}`}
             {...register('email', {
               required: 'Email is required',
-              pattern: /^\S+@\S+$/i,
+              pattern: { value: /^\S+@\S+$/i, message: 'Invalid email format' },
             })}
           />
           {errors.email && (
@@ -81,7 +83,7 @@ function RegisterForm() {
             type='text'
             id='username'
             placeholder='Username'
-            className='border p-2'
+            className={`border p-2 ${errors?.username ? 'border-red-400' : ''}`}
             {...register('username', { required: 'Username is required' })}
           />
           {errors.username && (
@@ -97,7 +99,7 @@ function RegisterForm() {
             type='password'
             id='password'
             placeholder='Password'
-            className='border p-2'
+            className={`border p-2 ${errors?.password ? 'border-red-400' : ''}`}
             {...register('password', {
               required: 'Password is required',
               minLength: {
@@ -125,7 +127,9 @@ function RegisterForm() {
             type='password'
             id='confirmPassword'
             placeholder='ConfirmPassword'
-            className='border p-2'
+            className={`border p-2 ${
+              errors?.confirmPassword ? 'border-red-400' : ''
+            }`}
             {...register('confirmPassword', {
               required: 'Please confirm your password',
               validate: (value) =>
