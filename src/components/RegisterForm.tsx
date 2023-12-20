@@ -1,8 +1,13 @@
 'use client';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 function RegisterForm() {
+  const { push } = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -10,8 +15,27 @@ function RegisterForm() {
     watch,
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    console.log(data); // Handle form data submission
+  const [apiErrors, setApiErrors] = useState<string | null>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onSubmit = async (data: any) => {
+    setApiErrors(null);
+    setIsLoading(true);
+    try {
+      // Send registration data to the API endpoint
+      const response = await axios.post('http://localhost:3002/v1/users', data);
+      if (response.data.status === true) {
+        alert('Registered successfully!');
+        push('/');
+      } else {
+        setApiErrors('Registration Failed');
+      }
+    } catch (error: any) {
+      const errMsg = error.response?.data || 'Something went wrong';
+      setApiErrors(errMsg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const password = watch('password', '');
@@ -39,7 +63,7 @@ function RegisterForm() {
             })}
           />
           {errors.email && (
-            <p className='text-red-600'>{errors.email.message}</p>
+            <p className='text-red-600'>{errors.email.message?.toString()}</p>
           )}
 
           <label htmlFor='username' className='text-sm'>
@@ -53,7 +77,9 @@ function RegisterForm() {
             {...register('username', { required: 'Username is required' })}
           />
           {errors.username && (
-            <p className='text-red-600'>{errors.username.message}</p>
+            <p className='text-red-600'>
+              {errors.username.message?.toString()}
+            </p>
           )}
 
           <label htmlFor='password' className='text-sm'>
@@ -68,12 +94,20 @@ function RegisterForm() {
               required: 'Password is required',
               minLength: {
                 value: 6,
-                message: 'Password must be at least 6 characters',
+                message: 'Password should have at least 6 characters',
+              },
+              pattern: {
+                value:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{6,}$/,
+                message:
+                  'Password must have at least one lowercase letter, one uppercase letter, one number, and one special character',
               },
             })}
           />
           {errors.password && (
-            <p className='text-red-600'>{errors.password.message}</p>
+            <p className='text-red-600'>
+              {errors.password.message?.toString()}
+            </p>
           )}
 
           <label htmlFor='confirmPassword' className='text-sm'>
@@ -91,12 +125,15 @@ function RegisterForm() {
             })}
           />
           {errors.confirmPassword && (
-            <p className='text-red-600'>{errors.confirmPassword.message}</p>
+            <p className='text-red-600'>
+              {errors.confirmPassword.message?.toString()}
+            </p>
           )}
 
           <button
             type='submit'
             className='bg-blue-500 text-white cursor-pointer px-6 py-2 rounded-md'
+            disabled={isLoading}
           >
             Register
           </button>
@@ -109,7 +146,11 @@ function RegisterForm() {
           </Link>
         </div>
 
-        <div className='bg-red-300 text-red-800 mt-4 p-4 text-sm'>Error</div>
+        {apiErrors && (
+          <div className='bg-red-300 text-red-800 mt-4 p-4 text-sm'>
+            {apiErrors}
+          </div>
+        )}
       </div>
     </div>
   );
